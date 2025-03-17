@@ -1,0 +1,55 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: pythonfeed
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    pip install --upgrade setuptools wheel twine keyring
+  displayName: 'Install Packaging Tools'
+
+- script: |
+    echo "Creating .pypirc with authentication..."
+    cat <<EOF > ~/.pypirc
+    [distutils]
+    index-servers =
+        privatefeed
+        pypublicfeed
+
+    [privatefeed]
+    repository = https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/upload/
+    username = __token__
+    password = $PRIVATE_PAT_TOKEN
+
+    [pypublicfeed]
+    repository = https://pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/upload/
+    username = __token__
+    password = $PUBLIC_PAT_TOKEN
+    EOF
+    chmod 600 ~/.pypirc
+  displayName: 'Generate .pypirc File'
+  env:
+    PRIVATE_PAT_TOKEN: $(private_pat_token)
+    PUBLIC_PAT_TOKEN: $(public_pat_token)
+
+- script: |
+    echo "Building the package..."
+    python setup.py sdist bdist_wheel
+  displayName: 'Build Package'
+
+- script: |
+    echo "Uploading to Private Feed..."
+    twine upload --repository privatefeed dist/*
+
+    echo "Uploading to Public Feed..."
+    twine upload --repository pypublicfeed dist/*
+  displayName: 'Upload to Azure Artifacts'
