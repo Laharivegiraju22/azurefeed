@@ -42,14 +42,15 @@ steps:
     PUBLIC_PAT_TOKEN: $(public_pat_token)
 
 - script: |
+    pip install -r requirements.txt
+  displayName: 'Install Python Dependencies'  
+
+- script: |
     echo "Building the package..."
     python setup.py sdist bdist_wheel
   displayName: 'Build Package'
 
 - script: |
     echo "Uploading to Private Feed..."
-    twine upload --repository privatefeed dist/*
-
-    echo "Uploading to Public Feed..."
-    twine upload --repository pypublicfeed dist/*
+    twine upload --verbose --repository privatefeed dist/*
   displayName: 'Upload to Azure Artifacts'
