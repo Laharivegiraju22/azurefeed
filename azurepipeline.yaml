@@ -14,7 +14,8 @@ steps:
     addToPath: true
 
 - script: |
-    pip install --upgrade setuptools wheel twine keyring
+    pip install --upgrade pip
+    pip install --upgrade setuptools wheel twine keyring artifacts-keyring build
   displayName: 'Install Packaging Tools'
 
 - script: |
@@ -39,11 +40,17 @@ steps:
   displayName: 'Generate .pypirc File'
   env:
     PRIVATE_PAT_TOKEN: $(private_pat_token)
-    PUBLIC_PAT_TOKEN: $(public_pat_token)
+    PUBLIC_PAT_TOKEN: $(public_pat_token) 
 
 - script: |
-    pip install -r requirements.txt
-  displayName: 'Install Python Dependencies'  
+    echo "Clearing previous pip cache..."
+    pip cache purge
+  displayName: 'Clear Pip Cache'
+
+- script: |
+    echo "Installing dependencies to cache them in the public feed..."
+    pip install --no-cache-dir -r requirements.txt --index-url https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/ --extra-index-url https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/
+  displayName: 'Cache Dependencies'
 
 - script: |
     echo "Building the package..."
