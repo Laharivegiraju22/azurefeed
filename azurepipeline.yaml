@@ -43,13 +43,22 @@ steps:
     PUBLIC_PAT_TOKEN: $(public_pat_token) 
 
 - script: |
+    mkdir -p ~/.config/pip
+    echo "[global]" > ~/.config/pip/pip.conf
+    echo "index-url = https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/" >> ~/.config/pip/pip.conf
+    echo "extra-index-url = https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/" >> ~/.config/pip/pip.conf
+  displayName: "Configure pip for Azure Artifacts"
+
+
+- script: |
     echo "Clearing previous pip cache..."
     pip cache purge
   displayName: 'Clear Pip Cache'
 
 - script: |
     echo "Installing dependencies to cache them in the public feed..."
-    pip install --no-cache-dir -r requirements.txt --index-url https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/ --extra-index-url https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/
+    pip install -r requirements.txt 
+# --index-url https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/ -extra-index-url https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/
   displayName: 'Cache Dependencies'
 
 - script: |
@@ -59,5 +68,5 @@ steps:
 
 - script: |
     echo "Uploading to Private Feed..."
-    twine upload --verbose --repository privatefeed dist/*
+    twine upload --skip-existing --verbose --repository privatefeed dist/*
   displayName: 'Upload to Azure Artifacts'
