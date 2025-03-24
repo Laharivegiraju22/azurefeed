@@ -1,0 +1,220 @@
+ {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:10.6.2",
+    "version": "10.6.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.0.2",
+    "version": "11.0.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.1.2",
+    "version": "11.1.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.2.0",
+    "version": "11.2.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.3.0",
+    "version": "11.3.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.4.0",
+    "version": "11.4.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.4.1",
+    "version": "11.4.1"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:11.5.0",
+    "version": "11.5.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-collector",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-collector:12.0.0",
+    "version": "12.0.0"
+  },
+
+
+## Aggregator
+
+{
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:10.6.2",
+    "version": "10.6.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.0.2",
+    "version": "11.0.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.1.2",
+    "version": "11.1.2"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.2.0",
+    "version": "11.2.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.3.0",
+    "version": "11.3.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.4.0",
+    "version": "11.4.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.4.1",
+    "version": "11.4.1"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:11.5.0",
+    "version": "11.5.0"
+  },
+  {
+    "architecture": "x64",
+    "imageDeprecationStatus": {
+      "imageState": "Active",
+      "scheduledDeprecationTime": null
+    },
+    "offer": "ibm-security-guardium-multi-cloud",
+    "publisher": "ibm",
+    "sku": "ibm-security-guardium-aggregator",
+    "urn": "ibm:ibm-security-guardium-multi-cloud:ibm-security-guardium-aggregator:12.0.0",
+    "version": "12.0.0"
+  },
