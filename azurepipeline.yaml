@@ -42,31 +42,36 @@ steps:
     PRIVATE_PAT_TOKEN: $(private_pat_token)
     PUBLIC_PAT_TOKEN: $(public_pat_token) 
 
-- script: |
-    mkdir -p ~/.config/pip
-    echo "[global]" > ~/.config/pip/pip.conf
-    echo "index-url = https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/" >> ~/.config/pip/pip.conf
-    echo "extra-index-url = https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/" >> ~/.config/pip/pip.conf
-  displayName: "Configure pip for Azure Artifacts"
+# - script: |
+#     echo "Clearing previous pip cache..."
+#     pip cache purge
+#   displayName: 'Clear Pip Cache'
 
-
-- script: |
-    echo "Clearing previous pip cache..."
-    pip cache purge
-  displayName: 'Clear Pip Cache'
-
-- script: |
-    echo "Installing dependencies to cache them in the public feed..."
-    pip install -r requirements.txt 
-# --index-url https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/ -extra-index-url https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/
-  displayName: 'Cache Dependencies'
+# - script: |
+#     echo "Installing dependencies to cache them in the public feed..."
+#     pip install --no-cache-dir -r requirements.txt --index-url https://$(private_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/pypi/simple/ --extra-index-url https://$(public_pat_token)@pkgs.dev.azure.com/SailahariVegiraju/_packaging/pypublicfeed/pypi/simple/
+#   displayName: 'Cache Dependencies'
 
 - script: |
     echo "Building the package..."
     python setup.py sdist bdist_wheel
   displayName: 'Build Package'
 
+- task: Bash@3
+  displayName: 'Install Trivy'
+  inputs:
+    targetType: 'inline'
+    script: |
+      curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Run Trivy security scan on the built package
+- script: |
+    echo "Running Trivy scan on built package..."
+    trivy fs . --severity CRITICAL,HIGH --exit-code 1
+  displayName: 'Trivy Security Scan'
+  continueOnError: false # Fails the pipeline if vulnerabilities are found
+
 - script: |
     echo "Uploading to Private Feed..."
-    twine upload --skip-existing --verbose --repository privatefeed dist/*
+    twine upload --verbose --repository privatefeed dist/*
   displayName: 'Upload to Azure Artifacts'
