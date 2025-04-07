@@ -30,3 +30,6 @@ CMD ["python", "main.py"]
 docker build \
   --build-arg AZURE_DEVOPS_PAT=your_real_pat_here \
   -t my-private-python-app .
+# Ping the feed to verify connectivity and PAT auth
+RUN echo "🔐 DEBUG: Testing feed access with curl..." && \
+    curl -I -u :${AZURE_DEVOPS_PAT} https://pkgs.dev.azure.com/YOUR_ORG/YOUR_PROJECT/_packaging/YOUR_FEED/pypi/simple/ || echo "❌ Curl failed"
