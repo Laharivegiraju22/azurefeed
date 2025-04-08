@@ -75,3 +75,13 @@ steps:
     echo "Uploading to Private Feed..."
     twine upload --verbose --repository privatefeed dist/*
   displayName: 'Upload to Azure Artifacts'
+
+- task: Docker@2
+  displayName: Build Docker image with feed debug
+  inputs:
+    command: build
+    Dockerfile: 'Dockerfile'
+    tags: |
+      azure-debug:$(Build.BuildId)
+    buildContext: .
+    arguments: --build-arg AZURE_DEVOPS_PAT=$(public_pat_token)  
