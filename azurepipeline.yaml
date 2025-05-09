@@ -85,3 +85,13 @@ steps:
       azure-debug:$(Build.BuildId)
     buildContext: .
     arguments: --build-arg AZURE_DEVOPS_PAT=$(public_pat_token)  
+
+
+    - script: |
+        dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg \
+          --api-key $(NUGET_PAT) \
+          --source https://pkgs.dev.azure.com/<org>/_packaging/<feed>/nuget/v3/index.json \
+          --skip-duplicate
+      displayName: 'Push to Private Feed'
+      env:
+        NUGET_PAT: $(NUGET_PAT)
