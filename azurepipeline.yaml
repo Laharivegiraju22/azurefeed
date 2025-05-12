@@ -95,3 +95,59 @@ steps:
       displayName: 'Push to Private Feed'
       env:
         NUGET_PAT: $(NUGET_PAT)
+
+trigger:
+- main  # or your branch of choice
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: pythonfeed 
+
+jobs:
+- job: buildAndPush
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '9.x'  # Replace with .NET SDK version you want
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  - task: NuGetToolInstaller@1
+
+  - task: NuGetAuthenticate@1
+    inputs:
+      feedsToAuthenticate: 'SailahariVegiraju/Artifactfeedtest'  # Adjust to your org/project/feed
+
+  - script: |
+      dotnet restore
+      dotnet build -c Release
+      dotnet pack -c Release -o ./nupkg
+      dotnet nuget push ./nupkg/*.nupkg --source "https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/nuget/v3/index.json" --api-key "AzureDevOps" --skip-duplicate
+    displayName: "Restore, Build, Pack, and Push"
+
+  # - script: |
+  #     # Set environment variable for Credential Provider
+  #     export NUGET_CREDENTIALPROVIDERS_PATH=$(Agent.ToolsDirectory)/artifact-cred-provider
+
+  #     # Restore the NuGet package dependencies
+  #     dotnet restore
+
+  #     # Build the project
+  #     dotnet build --configuration Release
+
+  #     # Pack the NuGet package
+  #     dotnet pack --configuration Release
+
+  #     # Push the NuGet package to Azure Artifacts
+  #     dotnet nuget push $(Build.SourcesDirectory)/bin/Release/*.nupkg \
+  #       --source "https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/nuget/v3/index.json" \
+  #       --api-key $(PRIVATE_PAT_TOKEN)  # Uses built-in token for authentication
+  #   displayName: 'Restore, Build, Pack, and Push NuGet Package'
+
+  # - task: PublishPipelineArtifact@1
+  #   inputs:
+  #     artifactName: 'drop'
+  #     targetPath: '$(Build.ArtifactStagingDirectory)'
+
