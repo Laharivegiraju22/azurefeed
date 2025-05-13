@@ -127,6 +127,34 @@ jobs:
       dotnet nuget push ./nupkg/*.nupkg --source "https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/nuget/v3/index.json" --api-key "AzureDevOps" --skip-duplicate
     displayName: "Restore, Build, Pack, and Push"
 
+
+
+
+  - task: NuGetToolInstaller@1
+
+  - task: NuGetAuthenticate@1
+    inputs:
+      feedsToAuthenticate: 'SailahariVegiraju/Artifactfeedtest'  # Adjust to your org/project/feed
+
+  - script: |
+      echo "Restoring .nupkg from Azure Artifacts Feed..."
+      dotnet restore --source https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/nuget/v3/index.json
+    displayName: 'Restore NuGet Package from Azure Artifacts Feed'
+
+  - script: |
+      echo "Deploying to Azure Web App..."
+      dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)/publish  # Publish for deployment
+    displayName: 'Deploy Web App to Azure'
+
+  - task: AzureRmWebAppDeployment@5
+    inputs:
+      ConnectionType: 'AzureRM'
+      azureSubscription: 'Sailahari-Vis-Prof-Sub(677e2958-8c03-4ec0-9cb2-a8f3d7a4b5ec)'
+      appType: 'webApp'
+      WebAppName: 'feeddotnetapp'
+      packageForLinux: '$(Build.ArtifactStagingDirectory)/publish'
+     
+
   # - script: |
   #     # Set environment variable for Credential Provider
   #     export NUGET_CREDENTIALPROVIDERS_PATH=$(Agent.ToolsDirectory)/artifact-cred-provider
