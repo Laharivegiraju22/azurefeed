@@ -128,32 +128,61 @@ jobs:
     displayName: "Restore, Build, Pack, and Push"
 
 
+  - script: |
+      dotnet restore
+      dotnet build --configuration Release
+      dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)/publish
+    displayName: 'Build and Publish App'
 
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '--output $(Build.ArtifactStagingDirectory)/publish'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/$(packageName).zip'
+      replaceExistingArchive: true
+    displayName: 'Create ZIP Package'
+
+  - task: UniversalPackages@0
+    inputs:
+      command: 'publish'
+      publishDirectory: '$(Build.ArtifactStagingDirectory)'
+      feedsToUsePublish: 'internal'
+      vstsFeedPublish: '44ee4792-8e1e-4158-9cd0-92a58bc92a20/6272e705-a3f2-4a24-a779-3227b4dc1323'
+      vstsFeedPackagePublish: '$(packageName)'
+      versionOption: 'minor'
+    displayName: 'Publish ZIP to Azure Artifacts Feed'    
+
+
+- job: deploy
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '9.x'  # Replace with .NET SDK version you want
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
   - task: NuGetToolInstaller@1
 
   - task: NuGetAuthenticate@1
     inputs:
-      feedsToAuthenticate: 'SailahariVegiraju/Artifactfeedtest'  # Adjust to your org/project/feed
-
-  - script: |
-      echo "Restoring .nupkg from Azure Artifacts Feed..."
-      dotnet restore --source https://pkgs.dev.azure.com/SailahariVegiraju/Artifactfeedtest/_packaging/privatefeed/nuget/v3/index.json
-    displayName: 'Restore NuGet Package from Azure Artifacts Feed'
-
-  - script: |
-      echo "Deploying to Azure Web App..."
-      dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)/publish  # Publish for deployment
-    displayName: 'Deploy Web App to Azure'
-
+      feedsToAuthenticate: 'SailahariVegiraju/Artifactfeedtest' 
+  - task: UniversalPackages@0
+    inputs:
+      command: 'download'
+      downloadDirectory: '$(System.DefaultWorkingDirectory)'
+      feedsToUse: 'internal'
+      vstsFeed: '44ee4792-8e1e-4158-9cd0-92a58bc92a20/6272e705-a3f2-4a24-a779-3227b4dc1323'
+      vstsFeedPackage: 'cb0dd85a-857a-4936-8cc2-338bb44e4aa3'
+      vstsPackageVersion: '0.1.0'
+  
   - task: AzureRmWebAppDeployment@5
     inputs:
       ConnectionType: 'AzureRM'
       azureSubscription: 'Sailahari-Vis-Prof-Sub(677e2958-8c03-4ec0-9cb2-a8f3d7a4b5ec)'
       appType: 'webApp'
       WebAppName: 'feeddotnetapp'
-      packageForLinux: '$(Build.ArtifactStagingDirectory)/publish'
-     
+      packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
 
   # - script: |
   #     # Set environment variable for Credential Provider
