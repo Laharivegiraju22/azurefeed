@@ -199,3 +199,56 @@ jobs:
   #     artifactName: 'drop'
   #     targetPath: '$(Build.ArtifactStagingDirectory)'
 
+
+
+  - script: |
+      # Config
+      FEED_NAME="privatefeed"
+      PACKAGE_NAME="hello-world-api"
+      ORGANIZATION="SailahariVegiraju"
+      PROJECT="Artifactfeedtest"
+      VERSION_TO_CHECK="0.3.0"  # Use your target version here
+      PAT="$(PRIVATE_PAT_TOKEN)"
+
+      echo "Checking if version $VERSION_TO_CHECK of package $PACKAGE_NAME exists in feed $FEED_NAME..."
+
+      # Get package list and extract package GUID
+      PACKAGE_GUID=$(curl -s -u :$PAT \
+        "https://feeds.dev.azure.com/$ORGANIZATION/$PROJECT/_apis/packaging/feeds/$FEED_NAME/packages?api-version=7.1-preview.1" \
+        | jq -r ".value[] | select(.name==\"$PACKAGE_NAME\") | .id")
+
+      if [ -z "$PACKAGE_GUID" ] || [ "$PACKAGE_GUID" == "null" ]; then
+          echo "Package '$PACKAGE_NAME' not found in feed '$FEED_NAME'."
+          echo "##vso[task.setvariable variable=skipPublish]false"
+          exit 0
+      fi
+
+      echo "Found package GUID: $PACKAGE_GUID"
+
+      # Check for version
+      VERSION_EXISTS=$(curl -s -u :$PAT \
+       "https://feeds.dev.azure.com/$ORGANIZATION/$PROJECT/_apis/packaging/feeds/$FEED_NAME/packages/$PACKAGE_GUID/versions?api-version=7.1-preview.1" \
+        | jq -r ".value[]?.version" | grep -Fx "$VERSION_TO_CHECK")
+
+      if [ -n "$VERSION_EXISTS" ]; then
+          echo "Version $VERSION_TO_CHECK already exists. Skipping publish."
+          echo "##vso[task.setvariable variable=skipPublish]true"
+      else
+        echo "Version $VERSION_TO_CHECK not found. Proceeding."
+        echo "##vso[task.setvariable variable=skipPublish]false"
+      fi
+    displayName: 'Check if Package Version Exists'
+
+
+  - task: UniversalPackages@0
+    condition: eq(variables['skipPublish'], 'false')
+    inputs:
+      command: 'publish'
+      publishDirectory: '$(Build.ArtifactStagingDirectory)'
+      feedsToUsePublish: 'internal'
+      vstsFeedPublish: '44ee4792-8e1e-4158-9cd0-92a58bc92a20/6272e705-a3f2-4a24-a779-3227b4dc1323'
+      vstsFeedPackagePublish: 'hello-world-api'
+      versionOption: 'custom'
+      versionPublish: '0.3.0'
+    displayName: 'Publish ZIP to Azure Artifacts Feed'
+
