@@ -1,0 +1,155 @@
+trigger: none
+
+parameters:
+  - name: packageType
+    type: string
+    default: 'upack'  # Change to 'npm', 'maven', 'pypi', 'upack' if needed
+  - name: feedName
+    type: string
+    default: 'privatefeed'
+  - name: packageName
+    type: string
+    default: 'hello-world-api'
+
+variables:
+  - group: pythonfeed 
+
+stages:
+- stage: Promote
+  jobs:
+  - job: PromoteArtifact
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - task: Bash@3
+        displayName: 'Promote Latest Universal Package to Release View'
+        inputs:
+          targetType: 'inline'
+          script: |
+            #!/bin/bash
+            set -euo pipefail
+
+            echo "🔄 Starting Promotion Script..."
+
+            # Input parameters
+            PAT_TOKEN="${PRIVATE_PAT_TOKEN}"
+            ORG="SailahariVegiraju"
+            PROJECT="Artifactfeedtest"
+            FEED_ID="6272e705-a3f2-4a24-a779-3227b4dc1323"
+            PACKAGE_ID="hello-world-api"
+
+            # Encode PAT for Basic Auth
+            ENCODED_PAT=$(printf ":%s" "$PAT_TOKEN" | base64 | tr -d '\n')
+            echo "🔐 PAT token length: ${#PAT_TOKEN}"
+
+            echo "🔍 Fetching 'Release' view ID..."
+            VIEW_ID=$(curl -sS -H "Authorization: Basic $ENCODED_PAT" \
+              "https://feeds.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED_ID/views?api-version=7.1-preview.1" \
+              | jq -r '.value[] | select(.name=="Release") | .id')
+
+            if [[ -z "$VIEW_ID" ]]; then
+              echo "❌ ERROR: Release view ID not found."
+              exit 1
+            fi
+
+            echo "✅ View ID found: $VIEW_ID"
+
+            echo "📦 Fetching latest version and package ID for '$PACKAGE_ID'..."
+
+            PACKAGE_RESPONSE=$(curl -sS -H "Authorization: Basic $ENCODED_PAT" \
+              "https://feeds.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED_ID/packages?packageNameQuery=$PACKAGE_ID&protocolType=upack&includeAllVersions=true&api-version=7.1-preview.1")
+
+            echo "📦 Raw package query response:"
+            echo "$PACKAGE_RESPONSE"
+
+
+            # Extract latest version (last entry in sorted list)
+            VERSION=$(echo "$PACKAGE_RESPONSE" | jq -r '.value[0].versions | sort_by(.version) | last.version')
+
+            if [[ -z "$VERSION" || "$VERSION" == "null" ]]; then
+              echo "❌ ERROR: Could not retrieve latest version for package '$PACKAGE_ID'."
+              exit 1
+            fi
+
+            echo "📌 Latest version detected: $VERSION"
+
+            # Create JSON payload
+            JSON="{\"data\":{\"viewId\":\"$VIEW_ID\"},\"operation\":0,\"packages\":[{\"id\":\"$PACKAGE_ID\",\"version\":\"$VERSION\",\"protocolType\":\"upack\"}]}"
+
+            echo "🚀 Promoting package '$PACKAGE_ID' version '$VERSION'..."
+            RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST \
+              "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED_ID/upack/packagesbatch?api-version=7.1-preview.1" \
+              -H "Authorization: Basic $ENCODED_PAT" \
+              -H "Content-Type: application/json" \
+              -d "$JSON")
+
+            HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+
+            echo "🔎 HTTP Status: $HTTP_CODE"
+            echo "📩 Response Body:"
+            echo "$HTTP_BODY"
+
+            if [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "202" ]]; then
+              echo "❌ Promotion failed with status $HTTP_CODE"
+              exit 1
+            fi
+
+            echo "✅ Package '$PACKAGE_ID' version '$VERSION' promoted successfully to 'Release' view."
+
+    # - task: Bash@3
+    #   displayName: 'Promote Universal Package to Release View'
+    #   inputs:
+    #     targetType: 'inline'
+    #     script: |
+    #       #!/bin/bash
+    #       set -euo pipefail
+
+    #       echo "Starting Promotion Script..."
+
+    #       PAT_TOKEN="${PRIVATE_PAT_TOKEN}"
+    #       ORG="SailahariVegiraju"
+    #       PROJECT="Artifactfeedtest"
+    #       FEED_ID="6272e705-a3f2-4a24-a779-3227b4dc1323"
+    #       PACKAGE_ID="hello-world-api"
+    #       VERSION="0.5.0"
+
+    #       # Encode PAT token
+    #       ENCODED_PAT=$(printf ":%s" "$PAT_TOKEN" | base64 | tr -d '\n')
+    #       echo "PAT length: ${#PAT_TOKEN}"
+
+    #       echo "Fetching 'Release' view ID..."
+    #       VIEW_ID=$(curl -sS -H "Authorization: Basic $ENCODED_PAT" \
+    #         "https://feeds.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED_ID/views?api-version=7.1-preview.1" \
+    #         | jq -r '.value[] | select(.name=="Release") | .id')
+
+    #       if [[ -z "$VIEW_ID" ]]; then
+    #         echo "ERROR: Release view ID not found."
+    #         exit 1
+    #       fi
+
+    #       echo "View ID found: $VIEW_ID"
+
+    #       # Create JSON payload inline
+    #       JSON="{\"data\":{\"viewId\":\"$VIEW_ID\"},\"operation\":0,\"packages\":[{\"id\":\"$PACKAGE_ID\",\"version\":\"$VERSION\",\"protocolType\":\"upack\"}]}"
+
+    #       echo "Promoting package..."
+    #       RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST \
+    #         "https://pkgs.dev.azure.com/$ORG/$PROJECT/_apis/packaging/feeds/$FEED_ID/upack/packagesbatch?api-version=7.1-preview.1" \
+    #         -H "Authorization: Basic $ENCODED_PAT" \
+    #         -H "Content-Type: application/json" \
+    #         -d "$JSON")
+
+    #       HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+    #       HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+
+    #       echo "HTTP Status: $HTTP_CODE"
+    #       echo "Response Body:"
+    #       echo "$HTTP_BODY"
+
+    #       if [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "202" ]]; then
+    #         echo "Promotion failed with status $HTTP_CODE"
+    #         exit 1
+    #       fi
+
+    #       echo "✅ Package promoted successfully to Release view."
